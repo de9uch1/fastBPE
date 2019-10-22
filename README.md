@@ -3,6 +3,8 @@
 
 C++ implementation of [Neural Machine Translation of Rare Words with Subword Units](https://arxiv.org/abs/1508.07909), with Python API.
 
+**This version differs from the [original version](https://github.com/glample/fastBPE) in that you can set a threshold for the word frequency added to the vocabulary.**
+
 ## Installation
 
 Compile with:
@@ -19,10 +21,10 @@ usage: fastbpe <command> <args>
 
 The commands supported by fastBPE are:
 
-getvocab input1 [input2]             extract the vocabulary from one or two text files
-learnbpe nCodes input1 [input2]      learn BPE codes from one or two text files
-applybpe output input codes [vocab]  apply BPE codes to a text file
-applybpe_stream codes [vocab]        apply BPE codes to stdin and outputs to stdout
+getvocab input1 [input2]                        extract the vocabulary from one or two text files
+learnbpe nCodes input1 [input2]                 learn BPE codes from one or two text files
+applybpe output input codes [vocab] [threshold] apply BPE codes to a text file
+applybpe_stream codes [vocab] [threshold]       apply BPE codes to stdin and outputs to stdout
 ```
 
 fastBPE also supports stdin inputs. For instance, these two commands are equivalent:

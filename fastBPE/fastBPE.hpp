@@ -418,7 +418,7 @@ void split(vector<string> &splits, const string &text, char sep) {
     splits.push_back(text.substr(start));
 }
 
-void readVocab(const char *fp, unordered_map<string, uint32_t> &vocab) {
+void readVocab(const char *fp, unordered_map<string, uint32_t> &vocab, const int threshold) {
   ifstream file(fp);
   if (!file) {
     fprintf(stderr, "Cannot open vocabulary file %s\n", fp);
@@ -433,8 +433,10 @@ void readVocab(const char *fp, unordered_map<string, uint32_t> &vocab) {
     assert(splits.size() == 2);
     assert(vocab.find(splits[0]) == vocab.end());
     int count = stoi(splits[1]);
-    vocab[splits[0]] = count;
-    total += count;
+    if (count >= threshold) {
+      vocab[splits[0]] = count;
+      total += count;
+    }
   }
   fprintf(stderr, "Read %lu words (%lu unique) from vocabulary file.\n", total,
           vocab.size());
@@ -579,11 +581,12 @@ string process_bpe(vector<string> &subwords,
 }
 
 void applybpe(const char *outputFile, const char *inputFile,
-              const char *codesPath, const char *vocabPath) {
+              const char *codesPath, const char *vocabPath,
+              const int vocabThreshold) {
   // read vocabulary (to which we want to limit the output file)
   unordered_map<string, uint32_t> vocab;
   if (strcmp(vocabPath, "") != 0) {
-    readVocab(vocabPath, vocab);
+    readVocab(vocabPath, vocab, vocabThreshold);
   }
 
   // read codes
@@ -638,8 +641,8 @@ private:
   unordered_map<string, tps> reversed_codes;
 
 public:
-  BPEApplyer(const string& codesPath, const string& vocabPath) {
-    if (vocabPath.size() > 0) readVocab(vocabPath.c_str(), vocab);
+  BPEApplyer(const string& codesPath, const string& vocabPath, const int vocabThreshold) {
+    if (vocabPath.size() > 0) readVocab(vocabPath.c_str(), vocab, vocabThreshold);
     readCodes(codesPath.c_str(), codes, reversed_codes);
   }
 
@@ -677,8 +680,8 @@ public:
 };
 
 
-void applybpe_stream(const char *codesPath, const char *vocabPath) {
-  BPEApplyer applyer(codesPath, vocabPath);
+void applybpe_stream(const char *codesPath, const char *vocabPath, const int vocabThreshold) {
+  BPEApplyer applyer(codesPath, vocabPath, vocabThreshold);
   std::string line;
   while(std::getline(std::cin, line)) {
     vector<string> tmp;
